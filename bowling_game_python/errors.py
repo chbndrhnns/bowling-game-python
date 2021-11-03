@@ -1,0 +1,6 @@
+class NoAttemptsLeft(Exception):
+    ...
+
+
+class NoPinsLeft(Exception):
+    ...
