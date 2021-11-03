@@ -23,6 +23,13 @@ class TestFrame:
         game.throw(1)
         assert game.current_frame == Frame(2)
 
+    def test_game_ends_after_ten_frames(self, game):
+        [game._add_frame() for _ in range(9)]
+        game.throw(1)
+        game.throw(1)
+        with pytest.raises(errors.GameOver):
+            game.throw(1)
+
 
 class TestScore:
     def test_game_counts_score_for_one_throw(self, game):
