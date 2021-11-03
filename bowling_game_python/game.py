@@ -18,10 +18,18 @@ class Game:
 
     def throw(self, knocked_down_count: int):
         self.current_frame.score = knocked_down_count
-        if not self.current_frame.attempts_left:
+        if self._is_new_frame_needed:
             self._add_frame()
 
+    @property
+    def _is_new_frame_needed(self):
+        return not self.current_frame.attempts_left and self._is_new_frame_possible
+
+    @property
+    def _is_new_frame_possible(self):
+        if self.current_frame.count < MAX_FRAME_COUNT:
+            return True
+        raise errors.GameOver()
+
     def _add_frame(self):
-        if self.current_frame.count == MAX_FRAME_COUNT:
-            raise errors.GameOver()
         self._frames.append(Frame.from_previous(self.current_frame))
