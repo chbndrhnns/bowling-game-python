@@ -17,6 +17,17 @@ class Game:
     def __init__(self):
         self._pins_left = INITIAL_PIN_COUNT
         self._attempts_left = ATTEMPTS_PER_FRAME
+        self._frames = []
+
+    @property
+    def frame(self):
+        if self._attempts_left == 0:
+            return 2
+        return 1
+
+    @property
+    def score(self):
+        return INITIAL_PIN_COUNT - self._pins_left
 
     def throw(self, knocked_down_count: int):
         if not self._attempts_left:
@@ -28,7 +39,7 @@ class Game:
 
 
 @pytest.fixture
-def game():
+def game() -> Game:
     return Game()
 
 
@@ -48,3 +59,25 @@ def test_cannot_throw_if_throws_used_up(game):
     game.throw(0)
     with pytest.raises(NoAttemptsLeft):
         game.throw(0)
+
+
+class TestFrame:
+    def test_game_has_a_frame(self, game):
+        assert game.frame == 1
+
+    def test_second_frame_after_three_attempts(self, game):
+        game.throw(1)
+        game.throw(1)
+        game.throw(1)
+        assert game.frame == 2
+
+
+class TestScore:
+    def test_game_counts_score_for_one_throw(self, game):
+        game.throw(1)
+        assert game.score == 1
+
+    def test_game_counts_score_for_two_throws(self, game):
+        game.throw(1)
+        game.throw(1)
+        assert game.score == 2
