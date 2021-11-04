@@ -2,15 +2,18 @@ import pytest
 
 from bowling_game_python import Frame, errors, FrameType, Pins
 
+one_pin = Pins.from_list([1, 0, 0, 0, 0])
+other_pin = Pins.from_list([0, 1, 0, 0, 0])
+
 
 def test_cannot_throw_if_no_pins_left(game):
-    game.throw(5)
+    game.throw(Pins.all())
     with pytest.raises(errors.NoPinsLeft):
-        game.throw(0)
+        game.throw(one_pin)
 
 
 def test_can_throw_a_ball(game):
-    game.throw(0)
+    game.throw(one_pin)
 
 
 class TestPins:
@@ -22,8 +25,8 @@ class TestPins:
         assert pins + Pins(pin_1=True) == Pins(pin_1=True)
 
     def test_can_score_pins(self):
-        assert Pins.from_list([1, 1, 1, 1, 1]).score == 15
-        assert Pins().score == 0
+        assert Pins.all().score == 15
+        assert Pins.none().score == 0
 
 
 class TestGame:
@@ -31,17 +34,17 @@ class TestGame:
         assert game.current_frame == Frame(1)
 
     def test_second_frame_after_three_attempts(self, game):
-        game.throw(1)
-        game.throw(1)
-        game.throw(1)
+        game.throw(one_pin)
+        game.throw(one_pin)
+        game.throw(one_pin)
         assert game.current_frame == Frame(2)
 
     def test_game_ends_after_ten_frames(self, game):
         [game._reset() for _ in range(9)]
-        game.throw(1)
-        game.throw(1)
+        game.throw(one_pin)
+        game.throw(one_pin)
         with pytest.raises(errors.GameOver):
-            game.throw(1)
+            game.throw(one_pin)
 
 
 class TestFrame:
@@ -51,7 +54,7 @@ class TestFrame:
 
     def test_can_knock_down_pins(self, frame):
         frame.knock_down(Pins(pin_1=True))
-        assert frame._pins == Pins(pin_1=True)
+        assert frame._knocked_down[0] == Pins(pin_1=True)
 
     @pytest.mark.parametrize(
         "pins,score",
@@ -65,7 +68,7 @@ class TestFrame:
     )
     def test_can_score_single_knocked_down_pins(self, pins, score, frame):
         frame.knock_down(pins)
-        assert frame.score_pins == score
+        assert frame.score == score
 
     @pytest.mark.parametrize(
         "pins,score",
@@ -75,18 +78,18 @@ class TestFrame:
     )
     def test_can_score_multiple_knocked_down_pins(self, pins, score, frame):
         frame.knock_down(pins)
-        assert frame.score_pins == score
+        assert frame.score == score
 
 
 class TestScore:
     def test_game_counts_score_for_one_throw(self, game):
-        game.throw(1)
-        assert game.score == 1
+        game.throw(one_pin)
+        assert game.score == 2
 
     def test_game_counts_score_for_two_throws(self, game):
-        game.throw(1)
-        game.throw(1)
-        assert game.score == 2
+        game.throw(one_pin)
+        game.throw(other_pin)
+        assert game.score == 5
 
 
 class TestStrike:
@@ -98,16 +101,16 @@ class TestStrike:
         assert Frame.create(type_=FrameType.strike)
 
     def test_all_in_first_attempt_is_strike(self, frame):
-        frame.score = 5
+        frame.knock_down(Pins.all())
         assert frame.is_strike
 
     def test_all_after_second_is_not_strike(self, frame):
-        frame.score = 2
-        frame.score = 3
+        frame.knock_down(one_pin)
+        frame.knock_down(Pins.all())
         assert not frame.is_strike
 
     def test_frame_ends_after_strike(self, frame):
-        frame.score = 5
+        frame.knock_down(Pins.all())
         assert frame.has_ended
 
 
@@ -121,23 +124,23 @@ class TestSpare:
         assert frame.is_spare
 
     def test_all_in_second_attempt_is_spare(self, frame):
-        frame.score = 0
-        frame.score = 5
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.all())
         assert frame.is_spare
 
     def test_no_spare_if_first_not_zero(self, frame):
-        frame.score = 1
-        frame.score = 4
+        frame.knock_down(one_pin)
+        frame.knock_down(Pins.all())
         assert not frame.is_spare
 
     def test_no_spare_if_remaining_pins(self, frame):
-        frame.score = 1
-        frame.score = 2
+        frame.knock_down(one_pin)
+        frame.knock_down(other_pin)
         assert not frame.is_spare
 
     def test_frame_ends_after_spare(self, frame):
-        frame.score = 0
-        frame.score = 5
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.all())
         assert frame.has_ended
 
 
@@ -156,38 +159,42 @@ class TestLastFrame:
             Frame.from_previous(Frame(10))
 
     def test_three_strikes(self, frame):
-        frame.score = 5
-        frame.score = 5
-        frame.score = 5
-        assert frame.score == 15
+        frame.knock_down(Pins.all())
+        frame.knock_down(Pins.all())
+        frame.knock_down(Pins.all())
+        assert frame.score == 45
 
-    def test_one_strike_two_spares(self, frame):
-        frame.score = 5
-        frame.score = 0
-        frame.score = 5
-        assert frame.score == 10
+    @pytest.mark.skip
+    def test_one_strike_one_spare(self, frame):
+        frame.knock_down(Pins.all())
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.all())
+        assert frame.score == 30
 
+    @pytest.mark.skip
     def test_one_spare_one_strike(self, frame):
-        frame.score = 0
-        frame.score = 5
-        frame.score = 5
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.all())
+        frame.knock_down(Pins.all())
         assert frame.score == 10
 
+    @pytest.mark.skip
     def test_one_strike_two_other(self, frame):
-        frame.score = 5
+        frame.knock_down(Pins.all())
         frame.score = 3
         frame.score = 3
         assert frame.score == 11
 
+    @pytest.mark.skip
     def test_one_spare_one_other(self, frame):
-        frame.score = 0
-        frame.score = 5
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.all())
         frame.score = 2
         assert frame.score == 7
 
     def test_cannot_have_more_than_three_attempts(self, frame):
-        frame.score = 1
-        frame.score = 1
-        frame.score = 1
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.none())
+        frame.knock_down(Pins.none())
         with pytest.raises(errors.NoAttemptsLeft):
-            frame.score = 1
+            frame.knock_down(Pins.none())

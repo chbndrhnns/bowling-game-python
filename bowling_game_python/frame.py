@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
+from functools import reduce
+from operator import add
 from typing import List
 
 from . import errors
@@ -27,6 +29,7 @@ PIN_SCORE_MAP = {
 
 @dataclass
 class Pins:
+    # REFACTOR: Move to own module
     pin_1: bool = False
     pin_2: bool = False
     pin_3: bool = False
@@ -39,6 +42,22 @@ class Pins:
             raise ValueError("Need 5 values")
         return cls(*data)
 
+    @classmethod
+    def all(cls):
+        return Pins.from_list(
+            [
+                1,
+                1,
+                1,
+                1,
+                1,
+            ]
+        )
+
+    @classmethod
+    def none(cls):
+        return Pins()
+
     @property
     def score(self):
         return sum(
@@ -46,6 +65,10 @@ class Pins:
             for idx, knocked_down in self.to_dict().items()
             if knocked_down
         )
+
+    @property
+    def pins_left(self):
+        return len(list((pin for pin in self.__dict__.values() if not pin)))
 
     def to_dict(self):
         return {k: v for k, v in enumerate(self.__dict__.values(), start=1)}
@@ -61,8 +84,7 @@ class Pins:
 class Frame:
     def __init__(self, count):
         self._count = count
-        self._knocked_down = []
-        self._pins = Pins()
+        self._knocked_down: List[Pins] = []
         self._attempts_left = ATTEMPTS_PER_FRAME
 
     @property
@@ -71,15 +93,7 @@ class Frame:
 
     @property
     def score(self):
-        return sum(self._knocked_down)
-
-    @property
-    def score_pins(self):
-        return sum(
-            PIN_SCORE_MAP[idx]
-            for idx, knocked_down in self._pins.to_dict().items()
-            if knocked_down
-        )
+        return sum(pins.score for pins in self._knocked_down)
 
     @score.setter
     def score(self, val: int):
@@ -97,13 +111,13 @@ class Frame:
 
     @property
     def is_strike(self):
-        return self.score == INITIAL_PIN_COUNT and self.attempts_left == 2
+        return len(self._knocked_down) == 1 and self.score == 15
 
     @property
     def is_spare(self):
         return (
-            self._knocked_down[0] == 0
-            and self.score == INITIAL_PIN_COUNT
+            self._knocked_down[0].score == 0
+            and self.score == Pins.all().score
             and self._attempts_left == 1
         )
 
@@ -113,10 +127,22 @@ class Frame:
 
     @property
     def has_ended(self):
+        # REFACTOR: Rename to is_complete
         return self.is_strike or self.is_spare
 
-    def knock_down(self, pins: Pins = Pins()):
-        self._pins = self._pins + pins
+    def knock_down(self, pins: Pins):
+        if not self._attempts_left:
+            raise errors.NoAttemptsLeft()
+        if not self.is_last_frame:
+            try:
+                if not self._knocked_down[-1].pins_left:
+                    raise errors.NoPinsLeft()
+            except IndexError:
+                ...
+            if not reduce(add, self._knocked_down, Pins()).pins_left:
+                raise errors.NoPinsLeft
+        self._knocked_down.append(pins)
+        self._attempts_left -= 1
 
     def __eq__(self, other):
         if isinstance(other, Frame):
@@ -137,8 +163,8 @@ class Frame:
 
         instance = cls(count)
         if type_ == FrameType.strike:
-            instance.score = INITIAL_PIN_COUNT
+            instance.knock_down(Pins.all())
         if type_ == FrameType.spare:
-            instance.score = 0
-            instance.score = INITIAL_PIN_COUNT
+            instance.knock_down(Pins.none())
+            instance.knock_down(Pins.all())
         return instance

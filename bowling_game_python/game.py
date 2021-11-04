@@ -1,5 +1,5 @@
 from . import errors
-from .frame import Frame
+from .frame import Frame, Pins
 
 MAX_FRAME_COUNT = 10
 
@@ -16,8 +16,8 @@ class Game:
     def score(self):
         return sum(frame.score for frame in self._frames)
 
-    def throw(self, knocked_down_count: int):
-        self.current_frame.score = knocked_down_count
+    def throw(self, pins: Pins):
+        self.current_frame.knock_down(pins)
         if self._is_new_frame_needed:
             self._reset()
 
