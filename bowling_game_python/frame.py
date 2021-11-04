@@ -35,6 +35,8 @@ class Pins:
 
     @classmethod
     def from_list(cls, data: List):
+        if len(data) != INITIAL_PIN_COUNT:
+            raise ValueError("Need 5 values")
         return cls(*data)
 
     def to_dict(self):

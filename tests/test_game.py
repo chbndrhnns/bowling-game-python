@@ -49,9 +49,29 @@ class TestFrame:
         frame.knock_down(Pins(pin_1=True))
         assert frame._pins == Pins(pin_1=True)
 
-    def test_can_score_knocked_down_pins(self, frame):
-        frame.knock_down(Pins(pin_1=True))
-        assert frame.score_pins == 2
+    @pytest.mark.parametrize(
+        "pins,score",
+        [
+            (Pins.from_list([1, 0, 0, 0, 0]), 2),
+            (Pins.from_list([0, 1, 0, 0, 0]), 3),
+            (Pins.from_list([0, 0, 1, 0, 0]), 5),
+            (Pins.from_list([0, 0, 0, 1, 0]), 3),
+            (Pins.from_list([0, 0, 0, 0, 1]), 2),
+        ],
+    )
+    def test_can_score_single_knocked_down_pins(self, pins, score, frame):
+        frame.knock_down(pins)
+        assert frame.score_pins == score
+
+    @pytest.mark.parametrize(
+        "pins,score",
+        [
+            (Pins.from_list([1, 0, 1, 0, 0]), 7),
+        ],
+    )
+    def test_can_score_multiple_knocked_down_pins(self, pins, score, frame):
+        frame.knock_down(pins)
+        assert frame.score_pins == score
 
 
 class TestScore:
