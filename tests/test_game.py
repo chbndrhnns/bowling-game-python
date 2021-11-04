@@ -52,7 +52,7 @@ class TestGame:
         assert game.current_frame == Frame(2)
 
     def test_game_ends_after_ten_frames(self, game):
-        [game._reset() for _ in range(9)]
+        [game._create_next_frame() for _ in range(9)]
         game.throw(Pins.none())
         game.throw(one_pin)
         game.throw(other_pin)

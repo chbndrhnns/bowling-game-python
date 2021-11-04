@@ -1,7 +1,7 @@
-from . import errors
-from .frame import Frame, Pins
+from . import errors, Pins
+from .frame import Frame
 
-MAX_FRAME_COUNT = 10
+FRAMES_PER_GAME = 10
 
 
 class Game:
@@ -18,7 +18,7 @@ class Game:
 
     def throw(self, pins: Pins):
         if self._is_new_frame_needed:
-            self._reset()
+            self._create_next_frame()
         self.current_frame.knock_down(pins)
 
     @property
@@ -27,9 +27,9 @@ class Game:
 
     @property
     def _is_new_frame_possible(self):
-        if self.current_frame.count < MAX_FRAME_COUNT:
+        if self.current_frame.count < FRAMES_PER_GAME:
             return True
         raise errors.GameOver()
 
-    def _reset(self):
+    def _create_next_frame(self):
         self._frames.append(Frame.from_previous(self.current_frame))
