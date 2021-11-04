@@ -7,7 +7,7 @@ ATTEMPTS_PER_FRAME = 3
 
 
 class FrameType(str, Enum):
-    regular = "regular"
+    open = "open"
     strike = "strike"
     spare = "spare"
 
@@ -68,7 +68,7 @@ class Frame:
         return cls(frame.count + 1)
 
     @classmethod
-    def create(cls, *, count: int = 1, type_: FrameType = FrameType.regular) -> "Frame":
+    def create(cls, *, count: int = 1, type_: FrameType = FrameType.open) -> "Frame":
         instance = cls(count)
         if type_ == FrameType.strike:
             instance.score = INITIAL_PIN_COUNT
