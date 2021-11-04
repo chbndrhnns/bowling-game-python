@@ -160,7 +160,7 @@ class TestSpare:
 class TestLastFrame:
     @pytest.fixture
     def frame(self):
-        return Frame(10)
+        return Frame.from_previous(Frame(9))
 
     def test_tenth_frame_is_created_as_special_frame(self):
         frame = Frame.from_previous(Frame(9))
@@ -175,35 +175,31 @@ class TestLastFrame:
         frame.knock_down(Pins.all())
         frame.knock_down(Pins.all())
         frame.knock_down(Pins.all())
-        assert frame.score == 45
+        assert frame.score == 15 + 15 + 15
 
-    @pytest.mark.skip
     def test_one_strike_one_spare(self, frame):
         frame.knock_down(Pins.all())
         frame.knock_down(Pins.none())
         frame.knock_down(Pins.all())
-        assert frame.score == 30
+        assert frame.score == 15 + 0 + 15
 
-    @pytest.mark.skip
     def test_one_spare_one_strike(self, frame):
         frame.knock_down(Pins.none())
         frame.knock_down(Pins.all())
         frame.knock_down(Pins.all())
-        assert frame.score == 10
+        assert frame.score == 0 + 15 + 15
 
-    @pytest.mark.skip
     def test_one_strike_two_other(self, frame):
         frame.knock_down(Pins.all())
-        frame.score = 3
-        frame.score = 3
-        assert frame.score == 11
+        frame.knock_down(one_pin)
+        frame.knock_down(other_pin)
+        assert frame.score == 15 + 2 + 3
 
-    @pytest.mark.skip
     def test_one_spare_one_other(self, frame):
         frame.knock_down(Pins.none())
         frame.knock_down(Pins.all())
-        frame.score = 2
-        assert frame.score == 7
+        frame.knock_down(other_pin)
+        assert frame.score == 15 + 3
 
     def test_cannot_have_more_than_three_attempts(self, frame):
         frame.knock_down(Pins.none())

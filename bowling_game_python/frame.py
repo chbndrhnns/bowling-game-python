@@ -53,29 +53,24 @@ class Frame:
     def knock_down(self, pins: Pins):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
-        if not self.is_last_frame:
-            try:
-                if not self._attempts[-1].pins_left:
-                    raise errors.NoPinsLeft()
-            except IndexError:
-                ...
-            if not self.pin_state.pins_left:
-                raise errors.NoPinsLeft
+        try:
+            if not self._attempts[-1].pins_left:
+                raise errors.NoPinsLeft()
+        except IndexError:
+            ...
+        if not self.pin_state.pins_left:
+            raise errors.NoPinsLeft
         self._check_pins_not_already_down(pins)
         self._attempts.append(pins)
 
     def _check_pins_not_already_down(self, pins: Pins):
-        if not self.is_last_frame:
-            already_down = [
-                pin_name
-                for pin_name, pin_value in pins.__dict__.items()
-                if (
-                    self.pin_state.__dict__.get(pin_name)
-                    and pins.__dict__.get(pin_name)
-                )
-            ]
-            if already_down:
-                raise errors.PinsDownAlready(already_down=already_down)
+        already_down = [
+            pin_name
+            for pin_name, pin_value in pins.__dict__.items()
+            if (self.pin_state.__dict__.get(pin_name) and pins.__dict__.get(pin_name))
+        ]
+        if already_down:
+            raise errors.PinsDownAlready(already_down=already_down)
 
     def __eq__(self, other):
         if isinstance(other, Frame):
@@ -87,8 +82,21 @@ class Frame:
 
     @classmethod
     def from_previous(cls, frame: "Frame") -> "Frame":
-        next_frame_count = frame.count + 1
-        if next_frame_count > LAST_FRAME_COUNT:
+        if frame.is_last_frame:
             raise errors.GameOver
 
+        next_frame_count = frame.count + 1
+        if next_frame_count == LAST_FRAME_COUNT:
+            return LastFrame()
+
         return cls(count=next_frame_count)
+
+
+class LastFrame(Frame):
+    def __init__(self):
+        super().__init__(count=LAST_FRAME_COUNT)
+
+    def knock_down(self, pins: Pins):
+        if not self.attempts_left:
+            raise errors.NoAttemptsLeft()
+        self._attempts.append(pins)
