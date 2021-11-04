@@ -1,6 +1,6 @@
 import pytest
 
-from bowling_game_python import Frame, errors, FrameType, Pins
+from bowling_game_python import Frame, errors, Pins
 
 one_pin = Pins.from_list([1, 0, 0, 0, 0])
 all_remaining = Pins.from_list(
@@ -117,9 +117,6 @@ class TestStrike:
     def frame(self):
         return Frame(1)
 
-    def test_can_create_strike_frame(self):
-        assert Frame.create(type_=FrameType.strike)
-
     def test_all_in_first_attempt_is_strike(self, frame):
         frame.knock_down(Pins.all())
         assert frame.is_strike
@@ -138,10 +135,6 @@ class TestSpare:
     @pytest.fixture
     def frame(self):
         return Frame(1)
-
-    def test_can_create_spare_frame(self):
-        frame = Frame.create(type_=FrameType.spare)
-        assert frame.is_spare
 
     def test_all_in_second_attempt_is_spare(self, frame):
         frame.knock_down(Pins.none())

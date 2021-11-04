@@ -1,4 +1,3 @@
-from enum import Enum
 from functools import reduce
 from operator import add
 from typing import List
@@ -8,13 +7,6 @@ from .pins import Pins
 
 LAST_FRAME_COUNT = 10
 MAX_ATTEMPTS_PER_FRAME = 3
-
-
-class FrameType(str, Enum):
-    open = "open"
-    strike = "strike"
-    spare = "spare"
-    last = "last"
 
 
 class Frame:
@@ -95,17 +87,8 @@ class Frame:
 
     @classmethod
     def from_previous(cls, frame: "Frame") -> "Frame":
-        return Frame.create(count=frame.count + 1)
-
-    @classmethod
-    def create(cls, *, count: int = 1, type_: FrameType = FrameType.open) -> "Frame":
-        if count > LAST_FRAME_COUNT:
+        next_frame_count = frame.count + 1
+        if next_frame_count > LAST_FRAME_COUNT:
             raise errors.GameOver
 
-        instance = cls(count)
-        if type_ == FrameType.strike:
-            instance.knock_down(Pins.all())
-        if type_ == FrameType.spare:
-            instance.knock_down(Pins.none())
-            instance.knock_down(Pins.all())
-        return instance
+        return cls(count=next_frame_count)
