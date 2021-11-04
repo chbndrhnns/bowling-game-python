@@ -8,7 +8,7 @@ from . import errors
 
 INITIAL_PIN_COUNT = 5
 LAST_FRAME_COUNT = 10
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS_PER_FRAME = 3
 
 
 class FrameType(str, Enum):
@@ -96,7 +96,7 @@ class Frame:
 
     @property
     def attempts_left(self):
-        return MAX_ATTEMPTS - len(self._attempts)
+        return MAX_ATTEMPTS_PER_FRAME - len(self._attempts)
 
     @property
     def is_strike(self):
@@ -118,6 +118,10 @@ class Frame:
     def is_complete(self):
         return self.is_strike or self.is_spare
 
+    @property
+    def pin_state(self):
+        return reduce(add, self._attempts, Pins())
+
     def knock_down(self, pins: Pins):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
@@ -127,9 +131,23 @@ class Frame:
                     raise errors.NoPinsLeft()
             except IndexError:
                 ...
-            if not reduce(add, self._attempts, Pins()).pins_left:
+            if not self.pin_state.pins_left:
                 raise errors.NoPinsLeft
+        self._check_pins_not_already_down(pins)
         self._attempts.append(pins)
+
+    def _check_pins_not_already_down(self, pins: Pins):
+        if not self.is_last_frame:
+            already_down = [
+                pin_name
+                for pin_name, pin_value in pins.__dict__.items()
+                if (
+                    self.pin_state.__dict__.get(pin_name)
+                    and pins.__dict__.get(pin_name)
+                )
+            ]
+            if already_down:
+                raise errors.PinsDownAlready(already_down=already_down)
 
     def __eq__(self, other):
         if isinstance(other, Frame):

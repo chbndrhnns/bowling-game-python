@@ -3,6 +3,15 @@ import pytest
 from bowling_game_python import Frame, errors, FrameType, Pins
 
 one_pin = Pins.from_list([1, 0, 0, 0, 0])
+all_remaining = Pins.from_list(
+    [
+        0,
+        1,
+        1,
+        1,
+        1,
+    ]
+)
 other_pin = Pins.from_list([0, 1, 0, 0, 0])
 
 
@@ -34,15 +43,19 @@ class TestGame:
         assert game.current_frame == Frame(1)
 
     def test_second_frame_after_three_attempts(self, game):
-        game.throw(one_pin)
-        game.throw(one_pin)
-        game.throw(one_pin)
+        # Frame 1
+        game.throw(Pins.from_list([1, 0, 0, 0, 0]))
+        game.throw(Pins.from_list([0, 1, 0, 0, 0]))
+        game.throw(Pins.from_list([0, 0, 1, 0, 0]))
+        # Frame 2
+        game.throw(Pins.from_list([0, 0, 1, 0, 0]))
         assert game.current_frame == Frame(2)
 
     def test_game_ends_after_ten_frames(self, game):
         [game._reset() for _ in range(9)]
+        game.throw(Pins.none())
         game.throw(one_pin)
-        game.throw(one_pin)
+        game.throw(other_pin)
         with pytest.raises(errors.GameOver):
             game.throw(one_pin)
 
@@ -54,7 +67,14 @@ class TestFrame:
 
     def test_can_knock_down_pins(self, frame):
         frame.knock_down(Pins(pin_1=True))
+        frame.knock_down(Pins(pin_2=True))
         assert frame._attempts[0] == Pins(pin_1=True)
+        assert frame._attempts[1] == Pins(pin_2=True)
+
+    def test_cannot_knock_down_same_pin_twice(self, frame):
+        frame.knock_down(one_pin)
+        with pytest.raises(errors.PinsDownAlready):
+            frame.knock_down(one_pin)
 
     @pytest.mark.parametrize(
         "pins,score",
@@ -106,7 +126,7 @@ class TestStrike:
 
     def test_all_after_second_is_not_strike(self, frame):
         frame.knock_down(one_pin)
-        frame.knock_down(Pins.all())
+        frame.knock_down(all_remaining)
         assert not frame.is_strike
 
     def test_frame_ends_after_strike(self, frame):
@@ -130,7 +150,7 @@ class TestSpare:
 
     def test_no_spare_if_first_not_zero(self, frame):
         frame.knock_down(one_pin)
-        frame.knock_down(Pins.all())
+        frame.knock_down(all_remaining)
         assert not frame.is_spare
 
     def test_no_spare_if_remaining_pins(self, frame):

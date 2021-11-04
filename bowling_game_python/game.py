@@ -17,9 +17,9 @@ class Game:
         return sum(frame.score for frame in self._frames)
 
     def throw(self, pins: Pins):
-        self.current_frame.knock_down(pins)
         if self._is_new_frame_needed:
             self._reset()
+        self.current_frame.knock_down(pins)
 
     @property
     def _is_new_frame_needed(self):
