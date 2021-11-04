@@ -1,8 +1,10 @@
 from enum import Enum
 
-from .errors import NoAttemptsLeft, NoPinsLeft
+from . import errors
+
 
 INITIAL_PIN_COUNT = 5
+LAST_FRAME_COUNT = 10
 ATTEMPTS_PER_FRAME = 3
 
 
@@ -10,6 +12,7 @@ class FrameType(str, Enum):
     open = "open"
     strike = "strike"
     spare = "spare"
+    last = "last"
 
 
 class Frame:
@@ -29,9 +32,9 @@ class Frame:
     @score.setter
     def score(self, val: int):
         if not self._attempts_left:
-            raise NoAttemptsLeft()
+            raise errors.NoAttemptsLeft()
         if self.score == INITIAL_PIN_COUNT:
-            raise NoPinsLeft()
+            raise errors.NoPinsLeft()
         self._knocked_down.append(val)
         self._attempts_left -= 1
 
@@ -52,6 +55,10 @@ class Frame:
         )
 
     @property
+    def is_last(self):
+        return self._count == LAST_FRAME_COUNT
+
+    @property
     def has_ended(self):
         return self.is_strike or self.is_spare
 
@@ -65,10 +72,13 @@ class Frame:
 
     @classmethod
     def from_previous(cls, frame: "Frame") -> "Frame":
-        return cls(frame.count + 1)
+        return Frame.create(count=frame.count + 1)
 
     @classmethod
     def create(cls, *, count: int = 1, type_: FrameType = FrameType.open) -> "Frame":
+        if count > LAST_FRAME_COUNT:
+            raise errors.GameOver
+
         instance = cls(count)
         if type_ == FrameType.strike:
             instance.score = INITIAL_PIN_COUNT

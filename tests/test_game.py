@@ -92,3 +92,14 @@ class TestSpare:
         frame.score = 0
         frame.score = 5
         assert frame.has_ended
+
+
+class TestLastFrame:
+    def test_tenth_frame_is_created_as_special_frame(self):
+        frame = Frame.from_previous(Frame(9))
+        assert frame.count == 10
+        assert frame.is_last
+
+    def test_cannot_create_frame_after_tenth_frame(self):
+        with pytest.raises(errors.GameOver):
+            Frame.from_previous(Frame(10))
