@@ -8,7 +8,7 @@ from . import errors
 
 INITIAL_PIN_COUNT = 5
 LAST_FRAME_COUNT = 10
-ATTEMPTS_PER_FRAME = 3
+MAX_ATTEMPTS = 3
 
 
 class FrameType(str, Enum):
@@ -84,8 +84,7 @@ class Pins:
 class Frame:
     def __init__(self, count):
         self._count = count
-        self._knocked_down: List[Pins] = []
-        self._attempts_left = ATTEMPTS_PER_FRAME
+        self._attempts: List[Pins] = []
 
     @property
     def count(self):
@@ -93,64 +92,52 @@ class Frame:
 
     @property
     def score(self):
-        return sum(pins.score for pins in self._knocked_down)
-
-    @score.setter
-    def score(self, val: int):
-        if not self._attempts_left:
-            raise errors.NoAttemptsLeft()
-        if not self.is_last_frame:
-            if self.score == INITIAL_PIN_COUNT:
-                raise errors.NoPinsLeft()
-        self._knocked_down.append(val)
-        self._attempts_left -= 1
+        return sum(pins.score for pins in self._attempts)
 
     @property
     def attempts_left(self):
-        return self._attempts_left
+        return MAX_ATTEMPTS - len(self._attempts)
 
     @property
     def is_strike(self):
-        return len(self._knocked_down) == 1 and self.score == 15
+        return len(self._attempts) == 1 and self.score == 15
 
     @property
     def is_spare(self):
         return (
-            self._knocked_down[0].score == 0
+            self._attempts[0].score == 0
             and self.score == Pins.all().score
-            and self._attempts_left == 1
+            and self.attempts_left == 1
         )
 
     @property
     def is_last_frame(self):
-        return self._count == LAST_FRAME_COUNT
+        return self.count == LAST_FRAME_COUNT
 
     @property
-    def has_ended(self):
-        # REFACTOR: Rename to is_complete
+    def is_complete(self):
         return self.is_strike or self.is_spare
 
     def knock_down(self, pins: Pins):
-        if not self._attempts_left:
+        if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         if not self.is_last_frame:
             try:
-                if not self._knocked_down[-1].pins_left:
+                if not self._attempts[-1].pins_left:
                     raise errors.NoPinsLeft()
             except IndexError:
                 ...
-            if not reduce(add, self._knocked_down, Pins()).pins_left:
+            if not reduce(add, self._attempts, Pins()).pins_left:
                 raise errors.NoPinsLeft
-        self._knocked_down.append(pins)
-        self._attempts_left -= 1
+        self._attempts.append(pins)
 
     def __eq__(self, other):
         if isinstance(other, Frame):
-            return self._count == other._count
+            return self.count == other.count
         raise NotImplemented()
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self._count})"
+        return f"{self.__class__.__name__}({self.count})"
 
     @classmethod
     def from_previous(cls, frame: "Frame") -> "Frame":

@@ -54,7 +54,7 @@ class TestFrame:
 
     def test_can_knock_down_pins(self, frame):
         frame.knock_down(Pins(pin_1=True))
-        assert frame._knocked_down[0] == Pins(pin_1=True)
+        assert frame._attempts[0] == Pins(pin_1=True)
 
     @pytest.mark.parametrize(
         "pins,score",
@@ -111,7 +111,7 @@ class TestStrike:
 
     def test_frame_ends_after_strike(self, frame):
         frame.knock_down(Pins.all())
-        assert frame.has_ended
+        assert frame.is_complete
 
 
 class TestSpare:
@@ -141,7 +141,7 @@ class TestSpare:
     def test_frame_ends_after_spare(self, frame):
         frame.knock_down(Pins.none())
         frame.knock_down(Pins.all())
-        assert frame.has_ended
+        assert frame.is_complete
 
 
 class TestLastFrame:
