@@ -30,18 +30,13 @@ class Frame:
 
     @score.setter
     def score(self, val: int):
+        if not self._attempts_left:
+            raise errors.NoAttemptsLeft()
         if not self.is_last_frame:
-            if not self._attempts_left:
-                raise errors.NoAttemptsLeft()
             if self.score == INITIAL_PIN_COUNT:
                 raise errors.NoPinsLeft()
-            self._knocked_down.append(val)
-            self._attempts_left -= 1
-        else:
-            if not self._attempts_left:
-                raise errors.NoAttemptsLeft()
-            self._knocked_down.append(val)
-            self._attempts_left -= 1
+        self._knocked_down.append(val)
+        self._attempts_left -= 1
 
     @property
     def attempts_left(self):
