@@ -37,6 +37,9 @@ class Pins:
     def from_list(cls, data: List):
         return cls(*data)
 
+    def to_dict(self):
+        return {k: v for k, v in enumerate(self.__dict__.values(), start=1)}
+
     def __add__(self, other):
         if isinstance(other, Pins):
             return Pins.from_list(
@@ -62,9 +65,10 @@ class Frame:
 
     @property
     def score_pins(self):
-        pins = {k: v for k, v in enumerate(self._pins.__dict__.values(), start=1)}
         return sum(
-            PIN_SCORE_MAP[idx] for idx, knocked_down in pins.items() if knocked_down
+            PIN_SCORE_MAP[idx]
+            for idx, knocked_down in self._pins.to_dict().items()
+            if knocked_down
         )
 
     @score.setter
