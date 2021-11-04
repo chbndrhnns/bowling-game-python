@@ -1,6 +1,6 @@
 from enum import Enum
 
-from bowling_game_python.errors import NoAttemptsLeft, NoPinsLeft
+from .errors import NoAttemptsLeft, NoPinsLeft
 
 INITIAL_PIN_COUNT = 5
 ATTEMPTS_PER_FRAME = 3
