@@ -9,12 +9,13 @@ ATTEMPTS_PER_FRAME = 3
 class FrameType(str, Enum):
     regular = "regular"
     strike = "strike"
+    spare = "spare"
 
 
 class Frame:
     def __init__(self, count):
         self._count = count
-        self._knocked_down = 0
+        self._knocked_down = []
         self._attempts_left = ATTEMPTS_PER_FRAME
 
     @property
@@ -23,15 +24,15 @@ class Frame:
 
     @property
     def score(self):
-        return self._knocked_down
+        return sum(self._knocked_down)
 
     @score.setter
     def score(self, val: int):
         if not self._attempts_left:
             raise NoAttemptsLeft()
-        if self._knocked_down == INITIAL_PIN_COUNT:
+        if self.score == INITIAL_PIN_COUNT:
             raise NoPinsLeft()
-        self._knocked_down += val
+        self._knocked_down.append(val)
         self._attempts_left -= 1
 
     @property
@@ -40,11 +41,19 @@ class Frame:
 
     @property
     def is_strike(self):
-        return self._knocked_down == INITIAL_PIN_COUNT and self.attempts_left == 2
+        return self.score == INITIAL_PIN_COUNT and self.attempts_left == 2
+
+    @property
+    def is_spare(self):
+        return (
+            self._knocked_down[0] == 0
+            and self.score == INITIAL_PIN_COUNT
+            and self._attempts_left == 1
+        )
 
     @property
     def has_ended(self):
-        return self.is_strike
+        return self.is_strike or self.is_spare
 
     def __eq__(self, other):
         if isinstance(other, Frame):
@@ -62,5 +71,8 @@ class Frame:
     def create(cls, *, count: int = 1, type_: FrameType = FrameType.regular) -> "Frame":
         instance = cls(count)
         if type_ == FrameType.strike:
+            instance.score = INITIAL_PIN_COUNT
+        if type_ == FrameType.spare:
+            instance.score = 0
             instance.score = INITIAL_PIN_COUNT
         return instance

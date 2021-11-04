@@ -62,3 +62,33 @@ class TestStrike:
     def test_frame_ends_after_strike(self, frame):
         frame.score = 5
         assert frame.has_ended
+
+
+class TestSpare:
+    @pytest.fixture
+    def frame(self):
+        return Frame(1)
+
+    def test_can_create_spare_frame(self):
+        frame = Frame.create(type_=FrameType.spare)
+        assert frame.is_spare
+
+    def test_all_in_second_attempt_is_spare(self, frame):
+        frame.score = 0
+        frame.score = 5
+        assert frame.is_spare
+
+    def test_no_spare_if_first_not_zero(self, frame):
+        frame.score = 1
+        frame.score = 4
+        assert not frame.is_spare
+
+    def test_no_spare_if_remaining_pins(self, frame):
+        frame.score = 1
+        frame.score = 2
+        assert not frame.is_spare
+
+    def test_frame_ends_after_spare(self, frame):
+        frame.score = 0
+        frame.score = 5
+        assert frame.has_ended
