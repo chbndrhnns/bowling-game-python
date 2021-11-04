@@ -21,6 +21,10 @@ class TestPins:
     def test_can_overlay_with_throw(self, pins):
         assert pins + Pins(pin_1=True) == Pins(pin_1=True)
 
+    def test_can_score_pins(self):
+        assert Pins.from_list([1, 1, 1, 1, 1]).score == 15
+        assert Pins().score == 0
+
 
 class TestGame:
     def test_game_has_a_frame(self, game):

@@ -39,6 +39,14 @@ class Pins:
             raise ValueError("Need 5 values")
         return cls(*data)
 
+    @property
+    def score(self):
+        return sum(
+            PIN_SCORE_MAP[idx]
+            for idx, knocked_down in self.to_dict().items()
+            if knocked_down
+        )
+
     def to_dict(self):
         return {k: v for k, v in enumerate(self.__dict__.values(), start=1)}
 
