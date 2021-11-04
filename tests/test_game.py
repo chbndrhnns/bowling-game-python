@@ -24,7 +24,7 @@ class TestFrame:
         assert game.current_frame == Frame(2)
 
     def test_game_ends_after_ten_frames(self, game):
-        [game._add_frame() for _ in range(9)]
+        [game._reset() for _ in range(9)]
         game.throw(1)
         game.throw(1)
         with pytest.raises(errors.GameOver):

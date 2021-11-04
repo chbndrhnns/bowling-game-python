@@ -19,7 +19,7 @@ class Game:
     def throw(self, knocked_down_count: int):
         self.current_frame.score = knocked_down_count
         if self._is_new_frame_needed:
-            self._add_frame()
+            self._reset()
 
     @property
     def _is_new_frame_needed(self):
@@ -31,5 +31,5 @@ class Game:
             return True
         raise errors.GameOver()
 
-    def _add_frame(self):
+    def _reset(self):
         self._frames.append(Frame.from_previous(self.current_frame))
