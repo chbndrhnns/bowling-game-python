@@ -95,11 +95,52 @@ class TestSpare:
 
 
 class TestLastFrame:
+    @pytest.fixture
+    def frame(self):
+        return Frame(10)
+
     def test_tenth_frame_is_created_as_special_frame(self):
         frame = Frame.from_previous(Frame(9))
         assert frame.count == 10
-        assert frame.is_last
+        assert frame.is_last_frame
 
     def test_cannot_create_frame_after_tenth_frame(self):
         with pytest.raises(errors.GameOver):
             Frame.from_previous(Frame(10))
+
+    def test_three_strikes(self, frame):
+        frame.score = 5
+        frame.score = 5
+        frame.score = 5
+        assert frame.score == 15
+
+    def test_one_strike_two_spares(self, frame):
+        frame.score = 5
+        frame.score = 0
+        frame.score = 5
+        assert frame.score == 10
+
+    def test_one_spare_one_strike(self, frame):
+        frame.score = 0
+        frame.score = 5
+        frame.score = 5
+        assert frame.score == 10
+
+    def test_one_strike_two_other(self, frame):
+        frame.score = 5
+        frame.score = 3
+        frame.score = 3
+        assert frame.score == 11
+
+    def test_one_spare_one_other(self, frame):
+        frame.score = 0
+        frame.score = 5
+        frame.score = 2
+        assert frame.score == 7
+
+    def test_cannot_have_more_than_three_attempts(self, frame):
+        frame.score = 1
+        frame.score = 1
+        frame.score = 1
+        with pytest.raises(errors.NoAttemptsLeft):
+            frame.score = 1

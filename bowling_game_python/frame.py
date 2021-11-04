@@ -2,7 +2,6 @@ from enum import Enum
 
 from . import errors
 
-
 INITIAL_PIN_COUNT = 5
 LAST_FRAME_COUNT = 10
 ATTEMPTS_PER_FRAME = 3
@@ -31,12 +30,18 @@ class Frame:
 
     @score.setter
     def score(self, val: int):
-        if not self._attempts_left:
-            raise errors.NoAttemptsLeft()
-        if self.score == INITIAL_PIN_COUNT:
-            raise errors.NoPinsLeft()
-        self._knocked_down.append(val)
-        self._attempts_left -= 1
+        if not self.is_last_frame:
+            if not self._attempts_left:
+                raise errors.NoAttemptsLeft()
+            if self.score == INITIAL_PIN_COUNT:
+                raise errors.NoPinsLeft()
+            self._knocked_down.append(val)
+            self._attempts_left -= 1
+        else:
+            if not self._attempts_left:
+                raise errors.NoAttemptsLeft()
+            self._knocked_down.append(val)
+            self._attempts_left -= 1
 
     @property
     def attempts_left(self):
@@ -55,7 +60,7 @@ class Frame:
         )
 
     @property
-    def is_last(self):
+    def is_last_frame(self):
         return self._count == LAST_FRAME_COUNT
 
     @property
