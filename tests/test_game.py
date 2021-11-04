@@ -1,6 +1,6 @@
 import pytest
 
-from bowling_game_python import Frame, errors, FrameType
+from bowling_game_python import Frame, errors, FrameType, Pins
 
 
 def test_cannot_throw_if_no_pins_left(game):
@@ -13,7 +13,16 @@ def test_can_throw_a_ball(game):
     game.throw(0)
 
 
-class TestFrame:
+class TestPins:
+    @pytest.fixture
+    def pins(self):
+        return Pins()
+
+    def test_can_overlay_with_throw(self, pins):
+        assert pins + Pins(pin_1=True) == Pins(pin_1=True)
+
+
+class TestGame:
     def test_game_has_a_frame(self, game):
         assert game.current_frame == Frame(1)
 
@@ -29,6 +38,20 @@ class TestFrame:
         game.throw(1)
         with pytest.raises(errors.GameOver):
             game.throw(1)
+
+
+class TestFrame:
+    @pytest.fixture
+    def frame(self):
+        return Frame(1)
+
+    def test_can_knock_down_pins(self, frame):
+        frame.knock_down(Pins(pin_1=True))
+        assert frame._pins == Pins(pin_1=True)
+
+    def test_can_score_knocked_down_pins(self, frame):
+        frame.knock_down(Pins(pin_1=True))
+        assert frame.score_pins == 2
 
 
 class TestScore:

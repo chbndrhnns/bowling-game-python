@@ -1,4 +1,6 @@
+from dataclasses import dataclass
 from enum import Enum
+from typing import List
 
 from . import errors
 
@@ -14,10 +16,40 @@ class FrameType(str, Enum):
     last = "last"
 
 
+PIN_SCORE_MAP = {
+    1: 2,
+    2: 3,
+    3: 5,
+    4: 3,
+    5: 2,
+}
+
+
+@dataclass
+class Pins:
+    pin_1: bool = False
+    pin_2: bool = False
+    pin_3: bool = False
+    pin_4: bool = False
+    pin_5: bool = False
+
+    @classmethod
+    def from_list(cls, data: List):
+        return cls(*data)
+
+    def __add__(self, other):
+        if isinstance(other, Pins):
+            return Pins.from_list(
+                list(map(any, zip(*[self.__dict__.values(), other.__dict__.values()])))
+            )
+        raise NotImplemented
+
+
 class Frame:
     def __init__(self, count):
         self._count = count
         self._knocked_down = []
+        self._pins = Pins()
         self._attempts_left = ATTEMPTS_PER_FRAME
 
     @property
@@ -27,6 +59,13 @@ class Frame:
     @property
     def score(self):
         return sum(self._knocked_down)
+
+    @property
+    def score_pins(self):
+        pins = {k: v for k, v in enumerate(self._pins.__dict__.values(), start=1)}
+        return sum(
+            PIN_SCORE_MAP[idx] for idx, knocked_down in pins.items() if knocked_down
+        )
 
     @score.setter
     def score(self, val: int):
@@ -61,6 +100,9 @@ class Frame:
     @property
     def has_ended(self):
         return self.is_strike or self.is_spare
+
+    def knock_down(self, pins: Pins = Pins()):
+        self._pins = self._pins + pins
 
     def __eq__(self, other):
         if isinstance(other, Frame):
