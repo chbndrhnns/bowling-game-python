@@ -13,7 +13,6 @@ PIN_SCORE_MAP = {
 
 @dataclass
 class Pins:
-    # REFACTOR: Move to own module
     pin_1: bool = False
     pin_2: bool = False
     pin_3: bool = False
