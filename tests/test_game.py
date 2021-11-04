@@ -1,6 +1,6 @@
 import pytest
 
-from bowling_game_python import Frame, errors
+from bowling_game_python import Frame, errors, FrameType
 
 
 def test_cannot_throw_if_no_pins_left(game):
@@ -40,3 +40,25 @@ class TestScore:
         game.throw(1)
         game.throw(1)
         assert game.score == 2
+
+
+class TestStrike:
+    @pytest.fixture
+    def frame(self):
+        return Frame(1)
+
+    def test_can_create_strike_frame(self):
+        assert Frame.create(type_=FrameType.strike)
+
+    def test_all_in_first_attempt_is_strike(self, frame):
+        frame.score = 5
+        assert frame.is_strike
+
+    def test_all_after_second_is_not_strike(self, frame):
+        frame.score = 2
+        frame.score = 3
+        assert not frame.is_strike
+
+    def test_frame_ends_after_strike(self, frame):
+        frame.score = 5
+        assert frame.has_ended
