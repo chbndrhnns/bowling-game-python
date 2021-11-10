@@ -12,9 +12,19 @@ class classproperty:
 class Pin(abc.ABC):
     __score__ = None
 
+    def __init__(self):
+        self._is_down = False
+
     @classproperty
     def score(self):
         return self.__score__
+
+    @property
+    def is_down(self):
+        return self._is_down
+
+    def knock_down(self):
+        self._is_down = True
 
 
 class CornerLeft(Pin):

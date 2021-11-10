@@ -19,3 +19,10 @@ class TestPins:
 
     def test_pin_score(self, pin, score):
         assert pin.score == score
+
+
+def test_pin_down():
+    pin = pins.CornerLeft()
+    assert not pin.is_down
+    pin.knock_down()
+    assert pin.is_down
