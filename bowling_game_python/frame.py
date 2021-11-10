@@ -50,7 +50,7 @@ class Frame:
     def pin_state(self):
         return reduce(add, self._balls, Ball())
 
-    def knock_down(self, ball: Ball):
+    def throw(self, ball: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         try:
@@ -91,7 +91,7 @@ class LastFrame(Frame):
     def __init__(self):
         super().__init__(count=LAST_FRAME_COUNT)
 
-    def knock_down(self, pins: Ball):
+    def throw(self, pins: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         self._balls.append(pins)

@@ -17,10 +17,10 @@ class Game:
     def score(self):
         return sum(frame.score for frame in self._frames)
 
-    def throw(self, pins: Ball):
+    def throw(self, ball: Ball):
         if self._is_new_frame_needed:
             self._create_next_frame()
-        self.current_frame.knock_down(pins)
+        self.current_frame.throw(ball)
 
     @property
     def _is_new_frame_needed(self):
