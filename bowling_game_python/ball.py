@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from bowling_game_python import errors
+from bowling_game_python import errors, pins
 
 PIN_COUNT = 5
 PIN_SCORE_MAP = {
@@ -20,6 +20,8 @@ class Ball:
     pin_3: bool = False
     pin_4: bool = False
     pin_5: bool = False
+
+    # pin_1_cls: pins.CornerLeft = pins.CornerLeft()
 
     @classmethod
     def from_list(cls, data: List):
@@ -47,16 +49,15 @@ class Ball:
     def score(self):
         return sum(
             PIN_SCORE_MAP[idx]
-            for idx, knocked_down in self.to_dict().items()
+            for idx, knocked_down in {
+                k: v for k, v in enumerate(self.__dict__.values(), start=1)
+            }.items()
             if knocked_down
         )
 
     @property
     def pins_left(self):
         return len(list((pin for pin in self.__dict__.values() if not pin)))
-
-    def to_dict(self):
-        return {k: v for k, v in enumerate(self.__dict__.values(), start=1)}
 
     def __add__(self, other):
         if isinstance(other, Ball):
