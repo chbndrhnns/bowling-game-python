@@ -12,7 +12,7 @@ PIN_SCORE_MAP = {
 
 
 @dataclass
-class Pins:
+class Ball:
     pin_1: bool = False
     pin_2: bool = False
     pin_3: bool = False
@@ -27,7 +27,7 @@ class Pins:
 
     @classmethod
     def all(cls):
-        return Pins.from_list(
+        return Ball.from_list(
             [
                 1,
                 1,
@@ -39,7 +39,7 @@ class Pins:
 
     @classmethod
     def none(cls):
-        return Pins()
+        return Ball()
 
     @property
     def score(self):
@@ -57,8 +57,8 @@ class Pins:
         return {k: v for k, v in enumerate(self.__dict__.values(), start=1)}
 
     def __add__(self, other):
-        if isinstance(other, Pins):
-            return Pins.from_list(
+        if isinstance(other, Ball):
+            return Ball.from_list(
                 list(map(any, zip(*[self.__dict__.values(), other.__dict__.values()])))
             )
         raise NotImplemented

@@ -1,9 +1,9 @@
 import pytest
 
-from bowling_game_python import Frame, errors, Pins
+from bowling_game_python import Frame, errors, Ball
 
-one_pin = Pins.from_list([1, 0, 0, 0, 0])
-all_remaining = Pins.from_list(
+one_pin = Ball.from_list([1, 0, 0, 0, 0])
+all_remaining = Ball.from_list(
     [
         0,
         1,
@@ -12,11 +12,11 @@ all_remaining = Pins.from_list(
         1,
     ]
 )
-other_pin = Pins.from_list([0, 1, 0, 0, 0])
+other_pin = Ball.from_list([0, 1, 0, 0, 0])
 
 
 def test_cannot_throw_if_no_pins_left(game):
-    game.throw(Pins.all())
+    game.throw(Ball.all())
     with pytest.raises(errors.NoPinsLeft):
         game.throw(one_pin)
 
@@ -31,17 +31,17 @@ def test_game_has_a_frame(game):
 
 def test_second_frame_after_three_attempts(game):
     # Frame 1
-    game.throw(Pins.from_list([1, 0, 0, 0, 0]))
-    game.throw(Pins.from_list([0, 1, 0, 0, 0]))
-    game.throw(Pins.from_list([0, 0, 1, 0, 0]))
+    game.throw(Ball.from_list([1, 0, 0, 0, 0]))
+    game.throw(Ball.from_list([0, 1, 0, 0, 0]))
+    game.throw(Ball.from_list([0, 0, 1, 0, 0]))
     # Frame 2
-    game.throw(Pins.from_list([0, 0, 1, 0, 0]))
+    game.throw(Ball.from_list([0, 0, 1, 0, 0]))
     assert game.current_frame == Frame(2)
 
 
 def test_game_ends_after_ten_frames(game):
     [game._create_next_frame() for _ in range(9)]
-    game.throw(Pins.none())
+    game.throw(Ball.none())
     game.throw(one_pin)
     game.throw(other_pin)
     with pytest.raises(errors.GameOver):

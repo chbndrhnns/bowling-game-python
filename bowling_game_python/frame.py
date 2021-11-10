@@ -3,7 +3,7 @@ from operator import add
 from typing import List
 
 from . import errors
-from .pins import Pins
+from .ball import Ball
 
 LAST_FRAME_COUNT = 10
 MAX_ATTEMPTS_PER_FRAME = 3
@@ -12,7 +12,7 @@ MAX_ATTEMPTS_PER_FRAME = 3
 class Frame:
     def __init__(self, count):
         self._count = count
-        self._attempts: List[Pins] = []
+        self._attempts: List[Ball] = []
 
     @property
     def count(self):
@@ -34,7 +34,7 @@ class Frame:
     def is_spare(self):
         return (
             self._attempts[0].score == 0
-            and self.score == Pins.all().score
+            and self.score == Ball.all().score
             and self.attempts_left == 1
         )
 
@@ -48,9 +48,9 @@ class Frame:
 
     @property
     def pin_state(self):
-        return reduce(add, self._attempts, Pins())
+        return reduce(add, self._attempts, Ball())
 
-    def knock_down(self, pins: Pins):
+    def knock_down(self, pins: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         try:
@@ -63,7 +63,7 @@ class Frame:
         self._check_pins_not_already_down(pins)
         self._attempts.append(pins)
 
-    def _check_pins_not_already_down(self, pins: Pins):
+    def _check_pins_not_already_down(self, pins: Ball):
         already_down = [
             pin_name
             for pin_name, pin_value in pins.__dict__.items()
@@ -96,7 +96,7 @@ class LastFrame(Frame):
     def __init__(self):
         super().__init__(count=LAST_FRAME_COUNT)
 
-    def knock_down(self, pins: Pins):
+    def knock_down(self, pins: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         self._attempts.append(pins)

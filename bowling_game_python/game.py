@@ -1,5 +1,5 @@
 from . import errors
-from .pins import Pins
+from .ball import Ball
 from .frame import Frame
 
 FRAMES_PER_GAME = 10
@@ -17,7 +17,7 @@ class Game:
     def score(self):
         return sum(frame.score for frame in self._frames)
 
-    def throw(self, pins: Pins):
+    def throw(self, pins: Ball):
         if self._is_new_frame_needed:
             self._create_next_frame()
         self.current_frame.knock_down(pins)
