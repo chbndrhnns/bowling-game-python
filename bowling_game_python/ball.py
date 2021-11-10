@@ -3,7 +3,7 @@ from typing import List
 
 from bowling_game_python import errors
 
-INITIAL_PIN_COUNT = 5
+PIN_COUNT = 5
 PIN_SCORE_MAP = {
     1: 2,
     2: 3,
@@ -23,7 +23,7 @@ class Ball:
 
     @classmethod
     def from_list(cls, data: List):
-        if len(data) != INITIAL_PIN_COUNT:
+        if len(data) != PIN_COUNT:
             raise ValueError("Need 5 values")
         return cls(*data)
 
