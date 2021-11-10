@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from bowling_game_python import errors
+
 INITIAL_PIN_COUNT = 5
 PIN_SCORE_MAP = {
     1: 2,
@@ -58,6 +60,12 @@ class Ball:
 
     def __add__(self, other):
         if isinstance(other, Ball):
+            if already_down := [
+                pin
+                for pin in other.__dict__.keys()
+                if other.__dict__.get(pin) and self.__dict__.get(pin)
+            ]:
+                raise errors.PinsDownAlready(already_down=already_down)
             return Ball.from_list(
                 list(map(any, zip(*[self.__dict__.values(), other.__dict__.values()])))
             )

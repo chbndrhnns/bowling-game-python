@@ -12,7 +12,7 @@ MAX_ATTEMPTS_PER_FRAME = 3
 class Frame:
     def __init__(self, count):
         self._count = count
-        self._attempts: List[Ball] = []
+        self._balls: List[Ball] = []
 
     @property
     def count(self):
@@ -20,20 +20,20 @@ class Frame:
 
     @property
     def score(self):
-        return sum(pins.score for pins in self._attempts)
+        return sum(pins.score for pins in self._balls)
 
     @property
     def attempts_left(self):
-        return MAX_ATTEMPTS_PER_FRAME - len(self._attempts)
+        return MAX_ATTEMPTS_PER_FRAME - len(self._balls)
 
     @property
     def is_strike(self):
-        return len(self._attempts) == 1 and self.score == 15
+        return len(self._balls) == 1 and self.score == 15
 
     @property
     def is_spare(self):
         return (
-            self._attempts[0].score == 0
+            self._balls[0].score == 0
             and self.score == Ball.all().score
             and self.attempts_left == 1
         )
@@ -48,29 +48,24 @@ class Frame:
 
     @property
     def pin_state(self):
-        return reduce(add, self._attempts, Ball())
+        return reduce(add, self._balls, Ball())
 
-    def knock_down(self, pins: Ball):
+    def knock_down(self, ball: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
         try:
-            if not self._attempts[-1].pins_left:
+            if not self._balls[-1].pins_left:
                 raise errors.NoPinsLeft()
         except IndexError:
-            ...
+            pass
         if not self.pin_state.pins_left:
             raise errors.NoPinsLeft
-        self._check_pins_not_already_down(pins)
-        self._attempts.append(pins)
+        self._add_ball(ball)
 
-    def _check_pins_not_already_down(self, pins: Ball):
-        already_down = [
-            pin_name
-            for pin_name, pin_value in pins.__dict__.items()
-            if (self.pin_state.__dict__.get(pin_name) and pins.__dict__.get(pin_name))
-        ]
-        if already_down:
-            raise errors.PinsDownAlready(already_down=already_down)
+    def _add_ball(self, ball: Ball):
+        if self._balls:
+            self._balls[-1] + ball
+        self._balls.append(ball)
 
     def __eq__(self, other):
         if isinstance(other, Frame):
@@ -99,4 +94,4 @@ class LastFrame(Frame):
     def knock_down(self, pins: Ball):
         if not self.attempts_left:
             raise errors.NoAttemptsLeft()
-        self._attempts.append(pins)
+        self._balls.append(pins)

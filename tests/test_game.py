@@ -1,18 +1,7 @@
 import pytest
 
 from bowling_game_python import Frame, errors, Ball
-
-one_pin = Ball.from_list([1, 0, 0, 0, 0])
-all_remaining = Ball.from_list(
-    [
-        0,
-        1,
-        1,
-        1,
-        1,
-    ]
-)
-other_pin = Ball.from_list([0, 1, 0, 0, 0])
+from .conftest import one_pin, other_pin
 
 
 def test_cannot_throw_if_no_pins_left(game):
@@ -35,7 +24,7 @@ def test_second_frame_after_three_attempts(game):
     game.throw(Ball.from_list([0, 1, 0, 0, 0]))
     game.throw(Ball.from_list([0, 0, 1, 0, 0]))
     # Frame 2
-    game.throw(Ball.from_list([0, 0, 1, 0, 0]))
+    game.throw(Ball.from_list([0, 0, 0, 1, 0]))
     assert game.current_frame == Frame(2)
 
 
