@@ -1,4 +1,5 @@
-from . import errors, Pins
+from . import errors
+from .pins import Pins
 from .frame import Frame
 
 FRAMES_PER_GAME = 10
