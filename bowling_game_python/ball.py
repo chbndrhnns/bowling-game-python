@@ -21,7 +21,11 @@ class Ball:
     pin_4: bool = False
     pin_5: bool = False
 
-    # pin_1_cls: pins.CornerLeft = pins.CornerLeft()
+    pin_1_cls: pins.CornerLeft = pins.CornerLeft()
+    pin_2_cls: pins.TwoPinLeft = pins.TwoPinLeft()
+    pin_3_cls: pins.Head = pins.Head()
+    pin_4_cls: pins.TwoPinRight = pins.TwoPinRight()
+    pin_5_cls: pins.CornerLeft = pins.CornerRight()
 
     @classmethod
     def from_list(cls, data: List):
