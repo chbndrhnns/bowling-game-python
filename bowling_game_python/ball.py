@@ -50,24 +50,27 @@ class Ball:
         return sum(
             PIN_SCORE_MAP[idx]
             for idx, knocked_down in {
-                k: v for k, v in enumerate(self.__dict__.values(), start=1)
+                k: v for k, v in enumerate(self.dict().values(), start=1)
             }.items()
             if knocked_down
         )
 
     @property
     def pins_left(self):
-        return len(list((pin for pin in self.__dict__.values() if not pin)))
+        return len(list((pin for pin in self.dict().values() if not pin)))
+
+    def dict(self):
+        return {k: v for k, v in self.__dict__.items() if not k.endswith("_cls")}
 
     def __add__(self, other):
         if isinstance(other, Ball):
             if already_down := [
                 pin
-                for pin in other.__dict__.keys()
-                if other.__dict__.get(pin) and self.__dict__.get(pin)
+                for pin in other.dict().keys()
+                if other.dict().get(pin) and self.dict().get(pin)
             ]:
                 raise errors.PinsDownAlready(already_down=already_down)
             return Ball.from_list(
-                list(map(any, zip(*[self.__dict__.values(), other.__dict__.values()])))
+                list(map(any, zip(*[self.dict().values(), other.dict().values()])))
             )
         raise NotImplemented
