@@ -70,7 +70,7 @@ class Frame:
     def __eq__(self, other):
         if isinstance(other, Frame):
             return self.count == other.count
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.count})"

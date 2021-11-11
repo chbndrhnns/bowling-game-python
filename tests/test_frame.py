@@ -1,6 +1,6 @@
 import pytest
 
-from bowling_game_python import Frame, Ball, errors
+from bowling_game_python import Frame, Ball, errors, pins
 from .conftest import one_pin, all_remaining, other_pin
 
 
@@ -10,10 +10,11 @@ class TestFrame:
         return Frame(1)
 
     def test_can_knock_down_pins(self, frame):
-        frame.throw(Ball(pin_1=True))
-        frame.throw(Ball(pin_2=True))
-        assert frame._balls[0] == Ball(pin_1=True)
-        assert frame._balls[1] == Ball(pin_2=True)
+        frame.throw(Ball([pins.CornerLeft]))
+        frame.throw(Ball([pins.TwoPinLeft]))
+        assert frame._balls[0].pins_down == [pins.CornerLeft]
+        assert frame._balls[1].pins_down == [pins.TwoPinLeft]
+        assert frame.pin_state == Ball.from_list([1, 1, 0, 0, 0])
 
     def test_cannot_knock_down_same_pin_twice(self, frame):
         frame.throw(one_pin)

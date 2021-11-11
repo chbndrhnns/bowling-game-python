@@ -20,13 +20,13 @@ class Pin(abc.ABC):
     def score(self):
         return self.__score__
 
+    @classproperty
+    def position(self):
+        return self.__position__
+
     @property
     def is_down(self):
         return self._is_down
-
-    @property
-    def position(self):
-        return self.__position__
 
     def knock_down(self):
         self._is_down = True
