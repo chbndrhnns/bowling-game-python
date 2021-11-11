@@ -9,11 +9,11 @@ class TestBalls:
         return Ball()
 
     def test_from_list(self):
-        assert Ball.from_list([1, 0, 0, 0, 0]).pins_down == [pins.CornerLeft]
+        assert Ball.from_list([1, 0, 0, 0, 0]).pins_down == {pins.CornerLeft}
 
     def test_from_constructor(self):
         ball = Ball([pins.CornerLeft])
-        assert ball.pins_down == [pins.CornerLeft]
+        assert ball.pins_down == {pins.CornerLeft}
 
     def test_can_overlay_empty_ball_with_new_ball(self, ball):
         actual = ball + Ball([pins.CornerLeft])
@@ -29,5 +29,5 @@ class TestBalls:
             Ball([pins.CornerLeft]) + Ball([pins.CornerLeft])
 
     def test_can_score_ball(self):
-        assert Ball.all().score == 15
-        assert Ball.none().score == 0
+        assert Ball.all_down().score == 15
+        assert Ball().score == 0

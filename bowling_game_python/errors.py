@@ -1,4 +1,4 @@
-class NoAttemptsLeft(Exception):
+class NoBallsLeft(Exception):
     ...
 
 

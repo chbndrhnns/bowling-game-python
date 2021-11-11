@@ -5,8 +5,8 @@ from .conftest import one_pin, other_pin
 
 
 def test_cannot_throw_if_no_pins_left(game):
-    game.throw(Ball.all())
-    with pytest.raises(errors.NoPinsLeft):
+    game.throw(Ball.all_down())
+    with pytest.raises(errors.NoBallsLeft):
         game.throw(one_pin)
 
 
@@ -30,7 +30,7 @@ def test_second_frame_after_three_attempts(game):
 
 def test_game_ends_after_ten_frames(game):
     [game._create_next_frame() for _ in range(9)]
-    game.throw(Ball.none())
+    game.throw(Ball())
     game.throw(one_pin)
     game.throw(other_pin)
     with pytest.raises(errors.GameOver):

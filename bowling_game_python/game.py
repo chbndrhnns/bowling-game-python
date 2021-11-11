@@ -2,10 +2,10 @@ from . import errors
 from .ball import Ball
 from .frame import Frame
 
-FRAMES_PER_GAME = 10
-
 
 class Game:
+    FRAMES_PER_GAME = 10
+
     def __init__(self):
         self._frames = [Frame(1)]
 
@@ -24,11 +24,11 @@ class Game:
 
     @property
     def _is_new_frame_needed(self):
-        return not self.current_frame.attempts_left and self._is_new_frame_possible
+        return not self.current_frame.balls_left and self._is_new_frame_possible
 
     @property
     def _is_new_frame_possible(self):
-        if self.current_frame.count < FRAMES_PER_GAME:
+        if self.current_frame.count < self.FRAMES_PER_GAME:
             return True
         raise errors.GameOver()
 
