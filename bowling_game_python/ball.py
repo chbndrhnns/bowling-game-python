@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from bowling_game_python import errors, pins
+from . import errors, pins
+from .utils import classproperty
 
 
 class Ball:
@@ -16,10 +17,10 @@ class Ball:
         self._pins: List[pins.Pin] = [pin() for pin in self.__pin_setup__]
 
         down = down or []
-        if len(down) == len(self.__pin_setup__):
+        if len(down) == self.pin_count:
             self._pins = [pin.knock_down() for pin in self._pins]
 
-        elif len(down) < len(self.__pin_setup__):
+        elif len(down) < self.pin_count:
             for pin in down:
                 self._pins[pin.position - 1] = pin(down=True)
 
@@ -29,9 +30,13 @@ class Ball:
     def get_pin(self, pin_type: Type[pins.Pin]):
         return [pin for pin in self._pins if isinstance(pin, pin_type)][0]
 
+    @classproperty
+    def pin_count(cls) -> int:
+        return len(cls.__pin_setup__)
+
     @classmethod
     def from_list(cls, data: List[int]):
-        if len(data) != len(cls.__pin_setup__):
+        if len(data) != cls.pin_count:
             raise ValueError("Need 5 values")
         return cls([pin for idx, pin in enumerate(cls.__pin_setup__) if data[idx]])
 

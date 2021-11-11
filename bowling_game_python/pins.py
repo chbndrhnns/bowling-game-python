@@ -1,12 +1,6 @@
 import abc
 
-
-class classproperty:
-    def __init__(self, fn):
-        self._fn = fn
-
-    def __get__(self, instance, owner):
-        return self._fn(owner)
+from .utils import classproperty
 
 
 class Pin(abc.ABC):
@@ -17,12 +11,12 @@ class Pin(abc.ABC):
         self._is_down = down
 
     @classproperty
-    def score(self):
-        return self.__score__
+    def score(cls):
+        return cls.__score__
 
     @classproperty
-    def position(self):
-        return self.__position__
+    def position(cls):
+        return cls.__position__
 
     @property
     def is_down(self):
