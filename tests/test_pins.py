@@ -21,6 +21,12 @@ class TestPins:
         assert pin.score == score
 
 
+def test_pin_is_equal_if_is_down_is_equal():
+    assert pins.TwoPinLeft() == pins.TwoPinLeft()
+    assert pins.TwoPinLeft(down=True) == pins.TwoPinLeft(down=True)
+    assert pins.Head(down=True) != pins.TwoPinLeft(down=True)
+
+
 def test_pin_down():
     pin = pins.CornerLeft()
     assert not pin.is_down
