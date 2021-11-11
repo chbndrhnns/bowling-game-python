@@ -146,3 +146,11 @@ class TestLastFrame:
         frame.throw(Ball())
         with pytest.raises(errors.NoBallsLeft):
             frame.throw(Ball())
+
+    def test_is_complete_only_after_three_balls(self, frame):
+        frame.throw(Ball())
+        assert not frame.is_complete
+        frame.throw(Ball())
+        assert not frame.is_complete
+        frame.throw(Ball())
+        assert frame.is_complete
