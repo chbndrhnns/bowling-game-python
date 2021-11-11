@@ -58,16 +58,23 @@ class Frame:
         return self._balls[count - 1]
 
     def throw(self, ball: Ball):
+        if self._can_throw():
+            self._add_ball(ball)
+
+    def _can_throw(self):
         if self.is_complete or not self.balls_left:
             raise errors.NoBallsLeft()
         if not self.pin_state.pins_left:
             raise errors.NoPinsLeft()
-        self._add_ball(ball)
+        return True
 
     def _add_ball(self, ball: Ball):
+        self._validate_ball(ball)
+        self._balls.append(ball)
+
+    def _validate_ball(self, ball: Ball):
         if self._balls:
             self._balls[-1] + ball
-        self._balls.append(ball)
 
     def __eq__(self, other):
         if isinstance(other, Frame):
@@ -93,7 +100,10 @@ class LastFrame(Frame):
     def __init__(self):
         super().__init__(count=LAST_FRAME_COUNT)
 
-    def throw(self, pins: Ball):
+    def _can_throw(self):
         if not self.balls_left:
             raise errors.NoBallsLeft()
-        self._balls.append(pins)
+        return True
+
+    def _validate_ball(self, ball: Ball):
+        return True
