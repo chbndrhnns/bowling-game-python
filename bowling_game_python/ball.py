@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import List, Type, Set
 
 from . import errors, pins
