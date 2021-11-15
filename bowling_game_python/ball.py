@@ -55,7 +55,7 @@ class Ball:
     @classmethod
     def from_list(cls, data: list[int]):
         if len(data) != cls.pin_count:
-            raise ValueError("Need 5 values")
+            raise ValueError(f"Need {len(cls.__pin_setup__)} values")
         return cls([pin for idx, pin in enumerate(cls.__pin_setup__) if data[idx]])
 
     @classmethod
