@@ -1,4 +1,4 @@
-# Bowling Game 
+# Bowling Game (5-pin) 
 
 ## Concepts
 
