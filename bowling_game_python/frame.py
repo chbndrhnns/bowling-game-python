@@ -1,6 +1,5 @@
 from functools import reduce
 from operator import add
-from typing import List
 
 from . import errors
 from .ball import Ball
@@ -12,7 +11,7 @@ MAX_ATTEMPTS_PER_FRAME = 3
 class Frame:
     def __init__(self, count):
         self._count: int = count
-        self._balls: List[Ball] = []
+        self._balls: list[Ball] = []
 
     @property
     def count(self) -> int:

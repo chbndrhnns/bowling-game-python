@@ -1,4 +1,4 @@
-from typing import List, Type, Set
+from typing import Type, Set
 
 from . import errors, pins
 from .utils import classproperty
@@ -14,8 +14,8 @@ class Ball:
     ]
     MAX_SCORE = 15
 
-    def __init__(self, pins_down: List[Type[pins.Pin]] = None):
-        self._pins: List[pins.Pin] = self._initialize_pins()
+    def __init__(self, pins_down: list[Type[pins.Pin]] = None):
+        self._pins: list[pins.Pin] = self._initialize_pins()
 
         for pin in pins_down or []:
             self.knock_down(pin)
@@ -53,7 +53,7 @@ class Ball:
         return self._pins
 
     @classmethod
-    def from_list(cls, data: List[int]):
+    def from_list(cls, data: list[int]):
         if len(data) != cls.pin_count:
             raise ValueError("Need 5 values")
         return cls([pin for idx, pin in enumerate(cls.__pin_setup__) if data[idx]])
